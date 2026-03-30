@@ -3,18 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <title>PFAS Watch — NJ American Water</title>
-
-<!-- ── External libraries ── -->
 <link  rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-
 <style>
-/* ============================================================
-   LAYOUT
-   Sidebar (fixed left) + Main content (scrollable right)
-   ============================================================ */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
@@ -29,8 +22,8 @@ body {
 
 /* ── Sidebar ── */
 #sidebar {
-  width: 240px;
-  min-width: 240px;
+  width: 220px;
+  min-width: 220px;
   background: #14213d;
   color: #cdd6f4;
   display: flex;
@@ -54,9 +47,10 @@ body {
   color: #4a6898;
   margin-top: 2px;
 }
-
-/* Sidebar groups */
-.sb-group { border-bottom: 1px solid #1e3058; padding-bottom: 3px; }
+.sb-group {
+  border-bottom: 1px solid #1e3058;
+  padding-bottom: 4px;
+}
 .sb-label {
   padding: 7px 13px 2px;
   font-size: 8.5px;
@@ -65,14 +59,12 @@ body {
   color: #4a6898;
   font-weight: 700;
 }
-
-/* Sidebar buttons */
 .sb-btn {
   display: flex;
   align-items: center;
   gap: 6px;
   width: 100%;
-  padding: 5px 13px;
+  padding: 6px 13px;
   background: none;
   border: none;
   color: #b8c8e8;
@@ -86,19 +78,17 @@ body {
 }
 .sb-btn:hover  { background: #1e3058; }
 .sb-btn.active { background: #1d4ed8; color: #fff; font-weight: 600; }
-
-/* Sub-buttons inside dropdown — slightly indented */
 .sb-sub {
-  padding-left: 22px !important;
-  font-size: 10px !important;
-  background: #0d1b30;
+  padding-left: 24px;
+  font-size: 10px;
+  background: #0d1a2e;
 }
+.sb-sub:hover { background: #1e3058; }
+
+/* Status dots */
 .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 .dot-red    { background: #f87171; }
 .dot-orange { background: #fb923c; }
-.dot-green  { background: #4ade80; }
-.dot-gray   { background: #64748b; }
-.dot-dark   { background: #6b7280; }
 
 /* ── Top bar ── */
 #topbar {
@@ -112,7 +102,7 @@ body {
   flex-wrap: wrap;
 }
 #topbar h1   { font-size: 13px; color: #0f172a; font-weight: 700; }
-#topbar .date { font-size: 9.5px; color: #64748b; margin-left: auto; white-space: nowrap; }
+#topbar .date  { font-size: 9.5px; color: #64748b; margin-left: auto; white-space: nowrap; }
 #topbar .alert {
   background: #fef2f2; color: #b91c1c;
   border: 1px solid #fecaca;
@@ -120,125 +110,102 @@ body {
   font-size: 9.5px; font-weight: 700; white-space: nowrap;
 }
 
-/* ── Main content area ── */
+/* ── Main ── */
 #main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
 #content { flex: 1; overflow-y: auto; padding: 13px 15px; }
 
-/* ── Panels (show/hide) ── */
+/* ── Panels ── */
 .panel { display: none; }
 .panel.active { display: block; }
 
-/* ── Map panel needs full height ── */
-#map-wrap {
-  height: calc(100vh - 116px);
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0,0,0,.07);
-}
+/* ── Map ── */
+#map-wrap { height: calc(100vh - 116px); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.07); }
 #leaflet-map { width: 100%; height: 100%; }
 
-/* ── Utility panel header card ── */
+/* ── Utility header card ── */
 .util-header {
-  background: #fff;
-  border-radius: 8px;
-  padding: 10px 13px;
-  margin-bottom: 11px;
-  box-shadow: 0 1px 3px rgba(0,0,0,.07);
-  display: flex;
-  align-items: flex-start;
-  gap: 9px;
-  flex-wrap: wrap;
+  background: #fff; border-radius: 8px; padding: 10px 13px; margin-bottom: 11px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.07); display: flex; align-items: flex-start;
+  gap: 9px; flex-wrap: wrap;
 }
 .util-pwsid {
-  background: #14213d; color: #60a5fa;
-  padding: 2px 7px; border-radius: 5px;
-  font-family: monospace; font-size: 10px;
-  flex-shrink: 0; margin-top: 2px;
+  background: #14213d; color: #60a5fa; padding: 2px 7px; border-radius: 5px;
+  font-family: monospace; font-size: 10px; flex-shrink: 0; margin-top: 2px;
 }
-.util-name   { font-size: 13px; font-weight: 700; color: #0f172a; }
-.util-meta   { font-size: 10.5px; color: #64748b; margin-top: 2px; }
-.pop-badge   {
+.util-name { font-size: 13px; font-weight: 700; color: #0f172a; }
+.util-meta { font-size: 10.5px; color: #64748b; margin-top: 2px; }
+.pop-badge {
   display: inline-flex; align-items: center; gap: 4px;
   background: #eff6ff; border: 1px solid #bfdbfe;
-  border-radius: 5px; padding: 1px 7px;
-  font-size: 10px; color: #1d4ed8; font-weight: 600;
+  border-radius: 5px; padding: 1px 7px; font-size: 10px; color: #1d4ed8; font-weight: 600;
 }
-
-/* No-detect box */
 .no-pfas-box {
-  background: #f0fdf4; border: 2px solid #86efac;
-  border-radius: 10px; padding: 20px;
-  text-align: center; max-width: 440px; margin: 20px auto;
+  background: #f0fdf4; border: 2px solid #86efac; border-radius: 10px;
+  padding: 20px; text-align: center; max-width: 440px; margin: 20px auto;
 }
 .no-pfas-box h3 { font-size: 15px; color: #15803d; font-weight: 800; margin-bottom: 5px; }
 .no-pfas-box p  { font-size: 11px; color: #16a34a; line-height: 1.6; }
-
-/* CCR panel boxes */
-.ccr-data-box {
-  background: #fff; border-radius: 8px;
-  padding: 12px 14px;
-  box-shadow: 0 1px 3px rgba(0,0,0,.07);
-  margin-bottom: 11px;
-}
-.ccr-row {
-  display: flex; justify-content: space-between;
-  padding: 5px 0; border-bottom: 1px solid #f1f5f9;
-  font-size: 11px;
-}
-.ccr-row:last-child { border-bottom: none; }
-.ccr-key   { color: #64748b; }
-.ccr-val   { font-weight: 700; color: #0f172a; }
-.ccr-badge {
-  display: inline-block;
-  padding: 2px 8px; border-radius: 4px;
-  font-size: 10px; font-weight: 700; font-family: monospace;
-}
-.ccr-warn  { background: #fffbeb; border: 2px solid #fcd34d; border-radius: 10px; padding: 14px 18px; margin-bottom: 13px; font-size: 11px; color: #78350f; line-height: 1.7; }
-.nodata-box {
-  background: #f9fafb; border: 2px solid #e5e7eb;
-  border-radius: 10px; padding: 20px;
-  text-align: center; max-width: 440px; margin: 20px auto;
-}
-.nodata-box h3 { font-size: 15px; color: #374151; font-weight: 800; margin-bottom: 5px; }
-.nodata-box p  { font-size: 11px; color: #6b7280; line-height: 1.6; }
-
-/* Charts grid inside utility panels */
 .charts-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
   gap: 10px;
 }
+.ccr-warn {
+  background: #fffbeb; border: 2px solid #fcd34d; border-radius: 10px;
+  padding: 14px 18px; margin-bottom: 13px; font-size: 11px; color: #78350f; line-height: 1.7;
+}
+.ccr-data-box {
+  background: #fff; border-radius: 8px; padding: 12px 14px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.07); margin-bottom: 11px;
+}
+.ccr-row {
+  display: flex; justify-content: space-between;
+  padding: 5px 0; border-bottom: 1px solid #f1f5f9; font-size: 11px;
+}
+.ccr-row:last-child { border-bottom: none; }
+.ccr-key { color: #64748b; }
+.ccr-val  { font-weight: 700; color: #0f172a; }
+.nodata-box {
+  background: #f9fafb; border: 2px solid #e5e7eb; border-radius: 10px;
+  padding: 20px; text-align: center; max-width: 440px; margin: 20px auto;
+}
+.nodata-box h3 { font-size: 15px; color: #374151; font-weight: 800; margin-bottom: 5px; }
+.nodata-box p  { font-size: 11px; color: #6b7280; line-height: 1.6; }
 </style>
 </head>
-
 <body>
 
 <!-- ============================================================
      SIDEBAR
-     Navigation for all 36 utilities + dashboard pages.
-     Each button calls nav('panel-id').
      ============================================================ -->
 <div id="sidebar">
-
   <div id="sidebar-logo">
     <h2>⚗ PFAS Watch NJ</h2>
     <p>NJ American Water · All 36 Utilities · UCMR5 + CCR 2024</p>
   </div>
 
-  <!-- 4 main nav items -->
   <div class="sb-group">
     <div class="sb-label">Dashboard</div>
-    <button class="sb-btn active" data-panel="overview" onclick="nav('overview', this)">📊 Overview (All 36)</button>
-    <button class="sb-btn" data-panel="mcltable"        onclick="nav('mcltable', this)">📋 MCL Exceedances (19)</button>
-    <button class="sb-btn" data-panel="map"             onclick="nav('map',      this)">🗺 Interactive Map</button>
 
-    <!-- Exceed Graphs — collapsible dropdown -->
-    <button class="sb-btn" id="graphs-toggle" onclick="toggleGraphs()">
-      📈 Exceed Graphs (13)
-      <span id="graphs-arrow" style="margin-left:auto;font-size:10px;transition:transform .2s">▼</span>
+    <button class="sb-btn active" data-panel="overview" onclick="nav('overview', this)">
+      📊 Overview (All 36)
     </button>
 
-    <!-- Dropdown list — hidden by default -->
+    <button class="sb-btn" data-panel="mcltable" onclick="nav('mcltable', this)">
+      📋 MCL Exceedances (19)
+    </button>
+
+    <button class="sb-btn" data-panel="map" onclick="nav('map', this)">
+      🗺 Interactive Map
+    </button>
+
+    <!-- Exceed Graphs toggle button -->
+    <button class="sb-btn" id="graphs-toggle" onclick="toggleGraphs()">
+      📈 Exceed Graphs (13)
+      <span id="graphs-arrow" style="margin-left:auto;font-size:10px;display:inline-block;transition:transform .2s">▼</span>
+    </button>
+
+    <!-- Dropdown — hidden by default -->
     <div id="graphs-dropdown" style="display:none">
       <button class="sb-btn sb-sub" data-panel="camden"       onclick="nav('camden',       this)"><span class="dot dot-red"></span>Camden City</button>
       <button class="sb-btn sb-sub" data-panel="atlantic"     onclick="nav('atlantic',     this)"><span class="dot dot-red"></span>Atlantic County</button>
@@ -255,65 +222,40 @@ body {
       <button class="sb-btn sb-sub" data-panel="logan"        onclick="nav('logan',        this)"><span class="dot dot-orange"></span>Logan</button>
     </div>
   </div>
-
-</div><!-- /sidebar -->
+</div>
 
 
 <!-- ============================================================
      MAIN AREA
-     Top bar + scrollable content with all panels.
      ============================================================ -->
 <div id="main">
-
-  <!-- Top bar -->
   <div id="topbar">
     <h1>PFAS Watch — NJ American Water · All 36 Utilities</h1>
     <span class="date">March 2026 · EPA UCMR5 + CCR 2024</span>
     <span class="alert">⚠ 13 UCMR5 + 6 CCR = 19 utilities exceed MCL</span>
   </div>
 
-  <!-- ── Content panels ── -->
   <div id="content">
 
-    <!-- ======================================================
-         PANEL: Overview
-         Built and filled by pfas_overview.js
-         ====================================================== -->
-    <div id="panel-overview" class="panel active">
-      <!-- pfas_overview.js writes into this div -->
-    </div>
+    <!-- PANEL: Overview -->
+    <div id="panel-overview" class="panel active"></div>
 
-    <!-- ======================================================
-         PANEL: MCL Exceedances Table
-         Built and filled by pfas_mcl_table.js
-         ====================================================== -->
-    <div id="panel-mcltable" class="panel">
-      <!-- pfas_mcl_table.js writes into this div -->
-    </div>
+    <!-- PANEL: MCL Exceedances -->
+    <div id="panel-mcltable" class="panel"></div>
 
-    <!-- ======================================================
-         PANEL: Interactive Map
-         Built and filled by pfas_map.js
-         ====================================================== -->
+    <!-- PANEL: Map -->
     <div id="panel-map" class="panel">
-      <div id="map-wrap">
-        <div id="leaflet-map"></div>
-      </div>
+      <div id="map-wrap"><div id="leaflet-map"></div></div>
     </div>
 
-    <!-- ======================================================
-         PANELS: UCMR5 Utilities
-         Header is static HTML here.
-         Charts grid (#ch-*) is filled by pfas_charts.js
-         when the user clicks the panel for the first time.
-         ====================================================== -->
+    <!-- PANELS: UCMR5 Utilities (charts filled by pfas_charts.js) -->
 
     <div id="panel-camden" class="panel">
       <div class="util-header">
         <span class="util-pwsid">NJ0408001</span>
         <div>
           <div class="util-name">Camden City Water Dept (NJ American Water)</div>
-          <div class="util-meta">County: Camden &nbsp;·&nbsp; <span class="pop-badge">👥 ~71,000</span> &nbsp;·&nbsp; Source: EPA UCMR5</div>
+          <div class="util-meta">County: Camden &nbsp;·&nbsp; <span class="pop-badge">👥 ~71,000</span> &nbsp;·&nbsp; EPA UCMR5</div>
         </div>
         <div style="margin-left:auto"><span style="background:#fef2f2;color:#b91c1c;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700">⚠ PFOS 12.9 ng/L — 3.2× MCL</span></div>
       </div>
@@ -325,7 +267,7 @@ body {
         <span class="util-pwsid">NJ0119002</span>
         <div>
           <div class="util-name">NJ American Water — Atlantic County</div>
-          <div class="util-meta">County: Atlantic &nbsp;·&nbsp; <span class="pop-badge">👥 112,076</span> &nbsp;·&nbsp; Source: EPA UCMR5</div>
+          <div class="util-meta">County: Atlantic &nbsp;·&nbsp; <span class="pop-badge">👥 112,076</span> &nbsp;·&nbsp; EPA UCMR5</div>
         </div>
         <div style="margin-left:auto"><span style="background:#fef2f2;color:#b91c1c;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700">⚠ PFOA 10.9 ng/L — 2.7× MCL</span></div>
       </div>
@@ -337,7 +279,7 @@ body {
         <span class="util-pwsid">NJ0712001</span>
         <div>
           <div class="util-name">NJ American Water — Short Hills</div>
-          <div class="util-meta">County: Essex &nbsp;·&nbsp; <span class="pop-badge">👥 217,230</span> &nbsp;·&nbsp; Source: EPA UCMR5</div>
+          <div class="util-meta">County: Essex &nbsp;·&nbsp; <span class="pop-badge">👥 217,230</span> &nbsp;·&nbsp; EPA UCMR5</div>
         </div>
         <div style="margin-left:auto"><span style="background:#fef2f2;color:#b91c1c;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700">⚠ PFOA 9.1 ng/L — 2.3× MCL</span></div>
       </div>
@@ -349,7 +291,7 @@ body {
         <span class="util-pwsid">NJ1345001</span>
         <div>
           <div class="util-name">NJ American Water — Coastal North</div>
-          <div class="util-meta">County: Monmouth/Ocean &nbsp;·&nbsp; <span class="pop-badge">👥 375,857</span> &nbsp;·&nbsp; Source: EPA UCMR5</div>
+          <div class="util-meta">County: Monmouth/Ocean &nbsp;·&nbsp; <span class="pop-badge">👥 375,857</span> &nbsp;·&nbsp; EPA UCMR5</div>
         </div>
         <div style="margin-left:auto"><span style="background:#fef2f2;color:#b91c1c;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700">⚠ PFOA 7.5 ng/L — 1.9× MCL</span></div>
       </div>
@@ -361,7 +303,7 @@ body {
         <span class="util-pwsid">NJ2004002</span>
         <div>
           <div class="util-name">NJ American Water — Raritan</div>
-          <div class="util-meta">County: Somerset/Middlesex &nbsp;·&nbsp; <span class="pop-badge">👥 736,791</span> &nbsp;·&nbsp; Source: EPA UCMR5</div>
+          <div class="util-meta">County: Somerset/Middlesex &nbsp;·&nbsp; <span class="pop-badge">👥 736,791</span> &nbsp;·&nbsp; EPA UCMR5</div>
         </div>
         <div style="margin-left:auto"><span style="background:#fef2f2;color:#b91c1c;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700">⚠ PFOA 7.5 ng/L — 1.9× MCL</span></div>
       </div>
@@ -373,7 +315,7 @@ body {
         <span class="util-pwsid">NJ1427017</span>
         <div>
           <div class="util-name">NJ American Water — ITC (Mount Olive)</div>
-          <div class="util-meta">County: Morris &nbsp;·&nbsp; <span class="pop-badge">👥 ~1,750</span> &nbsp;·&nbsp; Source: EPA UCMR5</div>
+          <div class="util-meta">County: Morris &nbsp;·&nbsp; <span class="pop-badge">👥 ~1,750</span> &nbsp;·&nbsp; EPA UCMR5</div>
         </div>
         <div style="margin-left:auto"><span style="background:#fef2f2;color:#b91c1c;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700">⚠ PFOA 7.3 ng/L — 1.8× MCL</span></div>
       </div>
@@ -385,7 +327,7 @@ body {
         <span class="util-pwsid">NJ2121001</span>
         <div>
           <div class="util-name">NJ American Water — Washington / Oxford</div>
-          <div class="util-meta">County: Warren &nbsp;·&nbsp; <span class="pop-badge">👥 10,133</span> &nbsp;·&nbsp; Source: EPA UCMR5</div>
+          <div class="util-meta">County: Warren &nbsp;·&nbsp; <span class="pop-badge">👥 10,133</span> &nbsp;·&nbsp; EPA UCMR5</div>
         </div>
         <div style="margin-left:auto"><span style="background:#fef2f2;color:#b91c1c;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700">⚠ PFOS 7.1 ng/L — 1.8× MCL</span></div>
       </div>
@@ -397,7 +339,7 @@ body {
         <span class="util-pwsid">NJ1339001</span>
         <div>
           <div class="util-name">NJ American Water — Shorelands</div>
-          <div class="util-meta">County: Monmouth &nbsp;·&nbsp; <span class="pop-badge">👥 31,908</span> &nbsp;·&nbsp; Source: EPA UCMR5</div>
+          <div class="util-meta">County: Monmouth &nbsp;·&nbsp; <span class="pop-badge">👥 31,908</span> &nbsp;·&nbsp; EPA UCMR5</div>
         </div>
         <div style="margin-left:auto"><span style="background:#fff7ed;color:#c2410c;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700">⚠ PFOA 6.5 ng/L — 1.6× MCL</span></div>
       </div>
@@ -409,7 +351,7 @@ body {
         <span class="util-pwsid">NJ1350001</span>
         <div>
           <div class="util-name">NJ American Water — Union Beach</div>
-          <div class="util-meta">County: Monmouth &nbsp;·&nbsp; <span class="pop-badge">👥 5,380</span> &nbsp;·&nbsp; Source: EPA UCMR5</div>
+          <div class="util-meta">County: Monmouth &nbsp;·&nbsp; <span class="pop-badge">👥 5,380</span> &nbsp;·&nbsp; EPA UCMR5</div>
         </div>
         <div style="margin-left:auto"><span style="background:#fff7ed;color:#c2410c;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700">⚠ PFOA 6.2 ng/L — 1.5× MCL</span></div>
       </div>
@@ -421,7 +363,7 @@ body {
         <span class="util-pwsid">NJ0323001</span>
         <div>
           <div class="util-name">NJ American Water — Mount Holly</div>
-          <div class="util-meta">County: Burlington &nbsp;·&nbsp; <span class="pop-badge">👥 34,733</span> &nbsp;·&nbsp; Source: EPA UCMR5</div>
+          <div class="util-meta">County: Burlington &nbsp;·&nbsp; <span class="pop-badge">👥 34,733</span> &nbsp;·&nbsp; EPA UCMR5</div>
         </div>
         <div style="margin-left:auto"><span style="background:#fff7ed;color:#c2410c;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700">⚠ PFOA 4.8 ng/L — 1.2× MCL</span></div>
       </div>
@@ -433,7 +375,7 @@ body {
         <span class="util-pwsid">NJ2004001</span>
         <div>
           <div class="util-name">NJ American Water — Liberty (Elizabeth)</div>
-          <div class="util-meta">County: Union &nbsp;·&nbsp; <span class="pop-badge">👥 128,124</span> &nbsp;·&nbsp; Source: EPA UCMR5</div>
+          <div class="util-meta">County: Union &nbsp;·&nbsp; <span class="pop-badge">👥 128,124</span> &nbsp;·&nbsp; EPA UCMR5</div>
         </div>
         <div style="margin-left:auto"><span style="background:#fff7ed;color:#c2410c;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700">⚠ PFOA 4.5 ng/L — 1.1× MCL</span></div>
       </div>
@@ -445,7 +387,7 @@ body {
         <span class="util-pwsid">NJ1605001</span>
         <div>
           <div class="util-name">NJ American Water — Little Falls</div>
-          <div class="util-meta">County: Passaic &nbsp;·&nbsp; <span class="pop-badge">👥 16,675</span> &nbsp;·&nbsp; Source: EPA UCMR5</div>
+          <div class="util-meta">County: Passaic &nbsp;·&nbsp; <span class="pop-badge">👥 16,675</span> &nbsp;·&nbsp; EPA UCMR5</div>
         </div>
         <div style="margin-left:auto"><span style="background:#fff7ed;color:#c2410c;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700">⚠ PFOA 4.5 ng/L — 1.1× MCL</span></div>
       </div>
@@ -457,241 +399,127 @@ body {
         <span class="util-pwsid">NJ0809002</span>
         <div>
           <div class="util-name">NJ American Water — Logan</div>
-          <div class="util-meta">County: Gloucester &nbsp;·&nbsp; <span class="pop-badge">👥 3,762</span> &nbsp;·&nbsp; Source: EPA UCMR5</div>
+          <div class="util-meta">County: Gloucester &nbsp;·&nbsp; <span class="pop-badge">👥 3,762</span> &nbsp;·&nbsp; EPA UCMR5</div>
         </div>
         <div style="margin-left:auto"><span style="background:#fff7ed;color:#c2410c;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700">⚠ PFOA 4.2 ng/L — 1.0× MCL</span></div>
       </div>
       <div id="ch-logan" class="charts-grid"></div>
     </div>
 
-    <!-- UCMR5 — detected, no MCL exceedance -->
-    <div id="panel-western" class="panel">
-      <div class="util-header">
-        <span class="util-pwsid">NJ0327001</span>
-        <div>
-          <div class="util-name">NJ American Water — Delaware / Western</div>
-          <div class="util-meta">County: Burlington/Camden &nbsp;·&nbsp; <span class="pop-badge">👥 314,046</span> &nbsp;·&nbsp; Source: EPA UCMR5</div>
-        </div>
-        <div style="margin-left:auto"><span style="background:#f0fdf4;color:#15803d;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700">✓ Detected — Below / No MCL</span></div>
-      </div>
-      <div id="ch-western" class="charts-grid"></div>
-    </div>
-
-    <!-- UCMR5 — no PFAS detected -->
-    <div id="panel-harrison" class="panel">
-      <div class="util-header">
-        <span class="util-pwsid">NJ0808001</span>
-        <div>
-          <div class="util-name">NJ American Water — Harrison</div>
-          <div class="util-meta">County: Hudson &nbsp;·&nbsp; <span class="pop-badge">👥 ~18,000</span> &nbsp;·&nbsp; Source: EPA UCMR5 · 92 samples</div>
-        </div>
-        <div style="margin-left:auto"><span style="background:#f0fdf4;color:#15803d;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700">✓ No PFAS Detected</span></div>
-      </div>
-      <div class="no-pfas-box"><h3>✅ No PFAS Detected</h3><p>All 92 samples below MRL · Feb 10 – Aug 13, 2025</p></div>
-    </div>
-
-    <div id="panel-capemay" class="panel">
-      <div class="util-header">
-        <span class="util-pwsid">NJ0506010</span>
-        <div>
-          <div class="util-name">NJ American Water — Cape May Court House</div>
-          <div class="util-meta">County: Cape May &nbsp;·&nbsp; <span class="pop-badge">👥 ~10,000</span> &nbsp;·&nbsp; Source: EPA UCMR5 · 180 samples</div>
-        </div>
-        <div style="margin-left:auto"><span style="background:#f0fdf4;color:#15803d;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700">✓ No PFAS Detected</span></div>
-      </div>
-      <div class="no-pfas-box"><h3>✅ No PFAS Detected</h3><p>All 180 samples below MRL · Jan 17 – Sep 9, 2024</p></div>
-    </div>
-
-    <div id="panel-oceancity" class="panel">
-      <div class="util-header">
-        <span class="util-pwsid">NJ0508001</span>
-        <div>
-          <div class="util-name">NJ American Water — Ocean City</div>
-          <div class="util-meta">County: Cape May &nbsp;·&nbsp; <span class="pop-badge">👥 ~25,000</span> &nbsp;·&nbsp; Source: EPA UCMR5 · 480 samples</div>
-        </div>
-        <div style="margin-left:auto"><span style="background:#f0fdf4;color:#15803d;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700">✓ No PFAS Detected</span></div>
-      </div>
-      <div class="no-pfas-box"><h3>✅ No PFAS Detected</h3><p>All 480 samples below MRL · Jan 2023 – Jun 2024</p></div>
-    </div>
-
-    <div id="panel-pennsgrove" class="panel">
-      <div class="util-header">
-        <span class="util-pwsid">NJ1707001</span>
-        <div>
-          <div class="util-name">NJ American Water — Penns Grove</div>
-          <div class="util-meta">County: Salem &nbsp;·&nbsp; <span class="pop-badge">👥 10,843</span> &nbsp;·&nbsp; Source: EPA UCMR5</div>
-        </div>
-        <div style="margin-left:auto"><span style="background:#f0fdf4;color:#15803d;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700">✓ No PFAS Detected</span></div>
-      </div>
-      <div class="no-pfas-box"><h3>✅ No PFAS Detected</h3><p>All samples below MRL · Carneys Point, Oldmans, Penns Grove Borough</p></div>
-    </div>
-
-    <div id="panel-roxbury" class="panel">
-      <div class="util-header">
-        <span class="util-pwsid">NJ1436002</span>
-        <div>
-          <div class="util-name">NJ American Water — Roxbury</div>
-          <div class="util-meta">County: Morris &nbsp;·&nbsp; <span class="pop-badge">👥 14,135</span> &nbsp;·&nbsp; Source: EPA UCMR5 · 240 samples</div>
-        </div>
-        <div style="margin-left:auto"><span style="background:#f0fdf4;color:#15803d;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700">✓ No PFAS Detected</span></div>
-      </div>
-      <div class="no-pfas-box"><h3>✅ No PFAS Detected</h3><p>All 240 samples below MRL · Aug 2024 – Apr 2025</p></div>
-    </div>
-
-    <!-- ======================================================
-         PANELS: CCR 2024 Utilities
-         Generated automatically by the script below
-         from the CCR_PANELS config array.
-         ====================================================== -->
-    <!-- CCR panels are injected here by the script below -->
-
   </div><!-- /content -->
 </div><!-- /main -->
 
 
 <!-- ============================================================
-     NAVIGATION FUNCTION
-     Shows the requested panel, hides all others.
-     Also triggers chart rendering when a UCMR5 panel opens.
+     JAVASCRIPT — nav + toggle
+     (single clean script block — no syntax errors)
      ============================================================ -->
 <script>
-function toggleGraphs(btn) {
-  const dropdown = document.getElementById('graphs-dropdown');
-  const arrow    = document.getElementById('graphs-arrow');
-  const isOpen   = dropdown.style.display !== 'none';
+
+function toggleGraphs() {
+  var dropdown = document.getElementById('graphs-dropdown');
+  var arrow    = document.getElementById('graphs-arrow');
+  var isOpen   = dropdown.style.display !== 'none';
   dropdown.style.display = isOpen ? 'none' : 'block';
   arrow.style.transform  = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
 }
 
-
+function nav(panelId, btn) {
   // hide all panels
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(function(p) {
+    p.classList.remove('active');
+  });
   // deactivate all sidebar buttons
-  document.querySelectorAll('.sb-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.sb-btn').forEach(function(b) {
+    b.classList.remove('active');
+  });
 
   // show the requested panel
-  const panel = document.getElementById('panel-' + panelId);
+  var panel = document.getElementById('panel-' + panelId);
   if (panel) panel.classList.add('active');
 
   // activate the clicked button
   if (btn) {
     btn.classList.add('active');
   } else {
-    // called programmatically (e.g. from overview table row click)
-    const b = document.querySelector(`.sb-btn[data-panel="${panelId}"]`);
+    var b = document.querySelector('.sb-btn[data-panel="' + panelId + '"]');
     if (b) b.classList.add('active');
   }
 
-  // trigger chart rendering if this is a UCMR5 utility panel
+  // render charts if UCMR5 utility panel
   if (window.renderChartsForPanel) renderChartsForPanel(panelId);
 
-  // init map only on first open (Leaflet needs the div to be visible)
+  // init map on first open
   if (panelId === 'map' && window.initMap) initMap();
 }
+
 </script>
 
-
-<!-- ============================================================
-     CCR PANEL GENERATOR
-     Builds all CCR utility panels dynamically from a config
-     array — avoids repeating the same HTML 17 times.
-     ============================================================ -->
+<!-- CCR panel generator -->
 <script>
-const CCR_PANELS = [
-  // Exceeds MCL
-  { id:"fourseasons", pwsid:"NJ1407001", name:"NJAW — Four Seasons at Chester", county:"Morris",    pop:"~500",    pfoa:"ND – 9.0", pfos:"ND – 8.0",                  status:"exceeds", maxVal:9.0 },
-  { id:"westjersey",  pwsid:"NJ1427009", name:"NJAW — West Jersey",             county:"Morris",    pop:"~2,000",  pfoa:"ND – 9.0", pfos:"ND – 8.0",                  status:"exceeds", maxVal:9.0 },
-  { id:"shrewsbury",  pwsid:"NJ1346001", name:"NJAW — Shrewsbury - AVMA",       county:"Monmouth",  pop:"~1,000",  pfoa:"4.5 – 6.8", pfos:"2.5 – 2.7",                status:"exceeds", maxVal:6.8 },
-  { id:"southorange", pwsid:"NJ0719001", name:"NJAW — South Orange Village",    county:"Essex",     pop:"16,587",  pfoa:"ND – 6.0", pfos:"ND – 3.0",                  status:"exceeds", maxVal:6.0 },
-  { id:"twinlakes",   pwsid:"NJ1803002", name:"NJAW — Twin Lakes",              county:"Somerset",  pop:"120",     pfoa:"ND – 6.0", pfos:"ND – 5.0",                  status:"exceeds", maxVal:6.0 },
-  { id:"salem",       pwsid:"NJ1712001", name:"NJAW — Salem",                   county:"Salem",     pop:"~5,000",  pfoa:"4.1 – 5.6", pfna:"2.9 – 5.1",               status:"exceeds", maxVal:5.6 },
-  // Below MCL
-  { id:"bridgeport",  pwsid:"NJ0809001", name:"NJAW — Bridgeport",              county:"Gloucester",pop:"~500",    pfoa:"ND – 3.9",                                  status:"detected", maxVal:3.9 },
-  { id:"frenchtown",  pwsid:"NJ1011001", name:"NJAW — Frenchtown",              county:"Hunterdon", pop:"~1,500",  pfoa:"ND – 3.0", pfos:"ND – 2.0",                  status:"detected", maxVal:3.0 },
-  // Not detected / NA
-  { id:"belvidere",   pwsid:"NJ2103001", name:"NJAW — Belvidere",               county:"Warren",    pop:"2,644",   pfoa:"NA",                                         status:"nd",       maxVal:0   },
-  { id:"crossroads",  pwsid:"NJ1024001", name:"NJAW — Crossroads at Oldwick",   county:"Hunterdon", pop:"~200",    pfoa:"NA",                                         status:"nd",       maxVal:0   },
-  // No data
-  { id:"deeprun",    pwsid:"NJ1523002", name:"NJAW — Deep Run",                 county:"Ocean",     pop:"~300",                                                       status:"nodata",   maxVal:0   },
-  { id:"eggharbor",  pwsid:"NJ0107001", name:"NJAW — Egg Harbor City",          county:"Atlantic",  pop:"3,180",                                                      status:"nodata",   maxVal:0   },
-  { id:"homestead",  pwsid:"NJ0318002", name:"NJAW — Homestead",                county:"Burlington",pop:"1,765",                                                      status:"nodata",   maxVal:0   },
-  { id:"newegypt",   pwsid:"NJ1523003", name:"NJAW — New Egypt",                county:"Ocean",     pop:"704",                                                        status:"nodata",   maxVal:0   },
-  { id:"strathmere", pwsid:"NJ0511001", name:"NJAW — Strathmere",               county:"Cape May",  pop:"~400",                                                       status:"nodata",   maxVal:0   },
-  { id:"sunbury",    pwsid:"NJ0329006", name:"NJAW — Sunbury",                  county:"Burlington",pop:"~200",                                                       status:"nodata",   maxVal:0   },
-  { id:"vincentown", pwsid:"NJ0333004", name:"NJAW — Vincentown",               county:"Burlington",pop:"132",                                                        status:"nodata",   maxVal:0   },
+var CCR_PANELS = [
+  { id:'fourseasons', pwsid:'NJ1407001', name:'NJAW — Four Seasons at Chester', county:'Morris',    pop:'~500',   pfoa:'ND – 9.0', pfos:'ND – 8.0', status:'exceeds', maxVal:9.0 },
+  { id:'westjersey',  pwsid:'NJ1427009', name:'NJAW — West Jersey',             county:'Morris',    pop:'~2,000', pfoa:'ND – 9.0', pfos:'ND – 8.0', status:'exceeds', maxVal:9.0 },
+  { id:'shrewsbury',  pwsid:'NJ1346001', name:'NJAW — Shrewsbury - AVMA',       county:'Monmouth',  pop:'~1,000', pfoa:'4.5–6.8',  pfos:'2.5–2.7',  status:'exceeds', maxVal:6.8 },
+  { id:'southorange', pwsid:'NJ0719001', name:'NJAW — South Orange Village',    county:'Essex',     pop:'16,587', pfoa:'ND – 6.0', pfos:'ND – 3.0', status:'exceeds', maxVal:6.0 },
+  { id:'twinlakes',   pwsid:'NJ1803002', name:'NJAW — Twin Lakes',              county:'Somerset',  pop:'120',    pfoa:'ND – 6.0', pfos:'ND – 5.0', status:'exceeds', maxVal:6.0 },
+  { id:'salem',       pwsid:'NJ1712001', name:'NJAW — Salem',                   county:'Salem',     pop:'~5,000', pfoa:'4.1–5.6',  pfna:'2.9–5.1',  status:'exceeds', maxVal:5.6 },
+  { id:'bridgeport',  pwsid:'NJ0809001', name:'NJAW — Bridgeport',              county:'Gloucester',pop:'~500',   pfoa:'ND – 3.9',                  status:'detected',maxVal:3.9 },
+  { id:'frenchtown',  pwsid:'NJ1011001', name:'NJAW — Frenchtown',              county:'Hunterdon', pop:'~1,500', pfoa:'ND – 3.0', pfos:'ND – 2.0', status:'detected',maxVal:3.0 },
+  { id:'belvidere',   pwsid:'NJ2103001', name:'NJAW — Belvidere',               county:'Warren',    pop:'2,644',  pfoa:'NA',                        status:'nd',      maxVal:0   },
+  { id:'crossroads',  pwsid:'NJ1024001', name:'NJAW — Crossroads at Oldwick',   county:'Hunterdon', pop:'~200',   pfoa:'NA',                        status:'nd',      maxVal:0   },
+  { id:'deeprun',     pwsid:'NJ1523002', name:'NJAW — Deep Run',                county:'Ocean',     pop:'~300',                                     status:'nodata',  maxVal:0   },
+  { id:'eggharbor',   pwsid:'NJ0107001', name:'NJAW — Egg Harbor City',         county:'Atlantic',  pop:'3,180',                                    status:'nodata',  maxVal:0   },
+  { id:'homestead',   pwsid:'NJ0318002', name:'NJAW — Homestead',               county:'Burlington',pop:'1,765',                                    status:'nodata',  maxVal:0   },
+  { id:'newegypt',    pwsid:'NJ1523003', name:'NJAW — New Egypt',               county:'Ocean',     pop:'704',                                      status:'nodata',  maxVal:0   },
+  { id:'strathmere',  pwsid:'NJ0511001', name:'NJAW — Strathmere',              county:'Cape May',  pop:'~400',                                     status:'nodata',  maxVal:0   },
+  { id:'sunbury',     pwsid:'NJ0329006', name:'NJAW — Sunbury',                 county:'Burlington',pop:'~200',                                     status:'nodata',  maxVal:0   },
+  { id:'vincentown',  pwsid:'NJ0333004', name:'NJAW — Vincentown',              county:'Burlington',pop:'132',                                      status:'nodata',  maxVal:0   },
 ];
 
-// Status badge HTML
 function ccrStatusBadge(status, maxVal) {
-  if (status === "nodata")   return `<span style="background:#f9fafb;color:#374151;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700">No PFAS Data in CCR</span>`;
-  if (status === "nd")       return `<span style="background:#f1f5f9;color:#475569;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700">✓ Not Detected / NA</span>`;
-  if (status === "detected") return `<span style="background:#f0fdf4;color:#15803d;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700">✓ Detected — Below MCL</span>`;
-  const high = maxVal >= 7;
-  return `<span style="background:${high?'#fef2f2':'#fff7ed'};color:${high?'#b91c1c':'#c2410c'};padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700">⚠ Max ${maxVal} ng/L — ${(maxVal/4).toFixed(1)}× MCL</span>`;
+  if (status === 'nodata')   return '<span style="background:#f9fafb;color:#374151;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700">No PFAS Data in CCR</span>';
+  if (status === 'nd')       return '<span style="background:#f1f5f9;color:#475569;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700">Not Detected / NA</span>';
+  if (status === 'detected') return '<span style="background:#f0fdf4;color:#15803d;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700">Detected — Below MCL</span>';
+  var high = maxVal >= 7;
+  return '<span style="background:' + (high?'#fef2f2':'#fff7ed') + ';color:' + (high?'#b91c1c':'#c2410c') + ';padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700">⚠ Max ' + maxVal + ' ng/L — ' + (maxVal/4).toFixed(1) + '× MCL</span>';
 }
 
-// Build CCR data rows
-function ccrDataRows(panel) {
-  if (panel.status === "nodata") {
-    return `<div class="nodata-box">
-      <h3>📭 No PFAS Data in CCR 2024</h3>
-      <p>This utility did not include PFAS data in its 2024 Water Quality Report.<br>Not in UCMR5 dataset. PFAS monitoring status unknown.</p>
-    </div>`;
+function buildCCRRows(p) {
+  if (p.status === 'nodata') {
+    return '<div class="nodata-box"><h3>📭 No PFAS Data in CCR 2024</h3><p>This utility did not include PFAS data in its 2024 Water Quality Report.<br>Not in UCMR5 dataset.</p></div>';
   }
-  const rows = [
-    panel.pfoa ? `<div class="ccr-row"><span class="ccr-key">PFOA (MCL = 4 ng/L)</span><span class="ccr-val ${panel.maxVal>4?'style="color:#b91c1c"':''}">${panel.pfoa}${panel.maxVal>4?' <span style="font-size:9px;color:#b91c1c;font-weight:700">▲ EXCEEDS MCL</span>':''}</span></div>` : '',
-    panel.pfos ? `<div class="ccr-row"><span class="ccr-key">PFOS (MCL = 4 ng/L)</span><span class="ccr-val">${panel.pfos}</span></div>` : '',
-    panel.pfna ? `<div class="ccr-row"><span class="ccr-key">PFNA (MCL = 10 ng/L)</span><span class="ccr-val">${panel.pfna}</span></div>` : '',
-  ].filter(Boolean).join('');
-
-  const note = panel.status === "exceeds"
-    ? `<div class="ccr-warn" style="margin-top:11px">⚠ <strong>Note:</strong> Max value from CCR range exceeds EPA MCL. CCR data reflects the full range across all entry points and sampling dates — this system was not included in UCMR5 formal monitoring.</div>`
-    : '';
-
-  return `<div class="ccr-data-box">
-    <div style="font-size:11px;font-weight:700;color:#0f172a;margin-bottom:8px">CCR 2024 PFAS Reported Range (ng/L)</div>
-    ${rows}
-    <div style="margin-top:8px;font-size:9.5px;color:#64748b;border-top:1px solid #f1f5f9;padding-top:7px">
-      ND = Non-Detect · NA = Not Applicable · Range = min–max across all 2024 sampling points.<br>
-      <span style="color:#92400e;font-weight:600">Source: CCR 2024 — utility self-reported, not EPA UCMR5 standardized data.</span>
-    </div>
-  </div>${note}`;
+  var rows = '';
+  if (p.pfoa) rows += '<div class="ccr-row"><span class="ccr-key">PFOA (MCL = 4 ng/L)</span><span class="ccr-val">' + p.pfoa + (p.maxVal>4?' <span style="font-size:9px;color:#b91c1c;font-weight:700">▲ EXCEEDS MCL</span>':'') + '</span></div>';
+  if (p.pfos) rows += '<div class="ccr-row"><span class="ccr-key">PFOS (MCL = 4 ng/L)</span><span class="ccr-val">' + p.pfos + '</span></div>';
+  if (p.pfna) rows += '<div class="ccr-row"><span class="ccr-key">PFNA (MCL = 10 ng/L)</span><span class="ccr-val">' + p.pfna + '</span></div>';
+  var note = p.status === 'exceeds' ? '<div class="ccr-warn">⚠ <strong>Note:</strong> Max value from CCR range exceeds EPA MCL. This system was not included in UCMR5 formal monitoring.</div>' : '';
+  return '<div class="ccr-data-box"><div style="font-size:11px;font-weight:700;color:#0f172a;margin-bottom:8px">CCR 2024 PFAS Reported Range (ng/L)</div>' + rows + '<div style="margin-top:8px;font-size:9.5px;color:#64748b;border-top:1px solid #f1f5f9;padding-top:7px">ND = Non-Detect · NA = Not Applicable · Range = min–max across all 2024 sampling points.<br><span style="color:#92400e;font-weight:600">Source: CCR 2024 — utility self-reported, not EPA UCMR5 standardized data.</span></div></div>' + note;
 }
 
-// Inject all CCR panels into the content div
-const content = document.getElementById('content');
-CCR_PANELS.forEach(panel => {
-  const div = document.createElement('div');
-  div.id        = 'panel-' + panel.id;
+var content = document.getElementById('content');
+CCR_PANELS.forEach(function(p) {
+  var div = document.createElement('div');
+  div.id        = 'panel-' + p.id;
   div.className = 'panel';
-  div.innerHTML = `
-    <div class="util-header">
-      <span class="util-pwsid">${panel.pwsid}</span>
-      <div>
-        <div class="util-name">${panel.name}</div>
-        <div class="util-meta">
-          County: ${panel.county} &nbsp;·&nbsp;
-          <span class="pop-badge">👥 ${panel.pop}</span> &nbsp;·&nbsp;
-          <span style="background:#fef9c3;color:#92400e;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">CCR 2024</span>
-          <span style="background:#ede9fe;color:#5b21b6;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700;margin-left:4px">Not in UCMR5</span>
-        </div>
-      </div>
-      <div style="margin-left:auto">${ccrStatusBadge(panel.status, panel.maxVal)}</div>
-    </div>
-    ${ccrDataRows(panel)}`;
+  div.innerHTML =
+    '<div class="util-header">' +
+      '<span class="util-pwsid">' + p.pwsid + '</span>' +
+      '<div>' +
+        '<div class="util-name">' + p.name + '</div>' +
+        '<div class="util-meta">County: ' + p.county + ' &nbsp;·&nbsp; <span class="pop-badge">👥 ' + p.pop + '</span> &nbsp;·&nbsp; ' +
+        '<span style="background:#fef9c3;color:#92400e;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">CCR 2024</span>' +
+        '<span style="background:#ede9fe;color:#5b21b6;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700;margin-left:4px">Not in UCMR5</span>' +
+        '</div>' +
+      '</div>' +
+      '<div style="margin-left:auto">' + ccrStatusBadge(p.status, p.maxVal) + '</div>' +
+    '</div>' +
+    buildCCRRows(p);
   content.appendChild(div);
 });
 </script>
 
-
-<!-- ============================================================
-     LOAD JS FILES (in dependency order)
-     1. pfas_data.js      — shared constants (UTILITIES, MCL_LIMITS)
-     2. pfas_overview.js  — fills #panel-overview
-     3. pfas_mcl_table.js — fills #panel-mcltable
-     4. pfas_map.js       — fills #leaflet-map (on first open)
-     5. pfas_charts.js    — fills #ch-* panels (on first open)
-     ============================================================ -->
+<!-- Load JS files (order matters) -->
 <script src="./pfas_data.js"></script>
 <script src="./pfas_overview.js"></script>
 <script src="./pfas_mcl_table.js"></script>
