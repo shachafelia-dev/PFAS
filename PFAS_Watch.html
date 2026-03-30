@@ -5,7 +5,6 @@
 <title>NJ American Water — PFAS Dashboard (All 36 Utilities)</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<!-- CHANGE 1: PapaParse + Chart.js for CSV-driven charts -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
@@ -87,7 +86,6 @@ tr.clickable:hover td{background:#f8faff;cursor:pointer}
     <div class="nl">Dashboard</div>
     <button class="nbtn active" data-id="overview" onclick="nav('overview',this)">📊 Overview (All 36)</button>
     <button class="nbtn" data-id="about" onclick="nav('about',this)">🏢 About NJAW</button>
-    <button class="nbtn" data-id="methodology" onclick="nav('methodology',this)">🔬 Methodology</button>
     <button class="nbtn" data-id="map" onclick="nav('map',this)">🗺 Interactive Map</button>
     <button class="nbtn" data-id="mcltable" onclick="nav('mcltable',this)">📋 MCL Exceedances</button>
   </div>
@@ -217,48 +215,6 @@ tr.clickable:hover td{background:#f8faff;cursor:pointer}
       </div>
     </div>
 
-    <!-- METHODOLOGY -->
-    <div id="panel-methodology" class="panel">
-      <div class="stitle">🔬 Data Collection Methodology</div>
-      <div class="ag" style="margin-bottom:13px">
-        <div class="ac" style="grid-column:1/-1">
-          <h3>📋 Overview</h3>
-          <p>This dashboard combines data from three independent sources. Each source uses a different collection methodology, and results are <strong>not directly cross-comparable</strong> between sources. UCMR5 charts are generated directly from the EPA CSV file.</p>
-        </div>
-      </div>
-      <div class="ag" style="margin-bottom:13px">
-        <div class="ac">
-          <h3 style="color:#1d4ed8">① EPA UCMR5 Dataset</h3>
-          <ul>
-            <li><strong>Coverage:</strong> 19 of 36 NJAW utilities</li>
-            <li><strong>Period:</strong> January 2023 – December 2025</li>
-            <li><strong>File:</strong> NJ_American_Water_utilities_UCMR5_all.csv</li>
-            <li><strong>Unit:</strong> Raw values in µg/L → converted to ng/L (×1000)</li>
-            <li><strong>Non-detects:</strong> Rows with sign="&lt;" excluded from charts</li>
-            <li><strong>Replicates:</strong> Same entry point + same date + different values → averaged (shown as ★)</li>
-            <li><strong>Reliability:</strong> Highest — fully standardized, lab-verified</li>
-          </ul>
-        </div>
-        <div class="ac">
-          <h3 style="color:#92400e">② CCR 2024 Water Quality Reports</h3>
-          <ul>
-            <li><strong>Coverage:</strong> 17 of 36 NJAW utilities (not in UCMR5)</li>
-            <li><strong>Period:</strong> Full year 2024</li>
-            <li><strong>Who collects:</strong> Utility self-reported annual CCR</li>
-            <li><strong>Method:</strong> Values shown as min–max range across all samples</li>
-            <li><strong>Reliability:</strong> Moderate — self-reported, ranges not directly comparable to UCMR5</li>
-          </ul>
-        </div>
-      </div>
-      <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:11px 14px;font-size:10.5px;color:#0c4a6e;line-height:1.8">
-        <strong>Primary Sources:</strong>
-        EPA UCMR5 Data Finder (epa.gov/dwucmr) &nbsp;·&nbsp;
-        NJ WaterCheck (njwatercheck.com) &nbsp;·&nbsp;
-        NJ American Water CCR PDFs (amwater.com/ccr) &nbsp;·&nbsp;
-        NJDEP Drinking Water Watch (dep.nj.gov/watersupply)
-      </div>
-    </div>
-
     <!-- MAP -->
     <div id="panel-map" class="panel">
       <div class="stitle">Interactive Map — PFAS Exceedances</div>
@@ -275,7 +231,7 @@ tr.clickable:hover td{background:#f8faff;cursor:pointer}
       </table></div>
     </div>
 
-    <!-- ===== UCMR5 PANELS — charts injected by pfas_charts.js ===== -->
+    <!-- ===== UCMR5 PANELS ===== -->
     <div id="panel-camden" class="panel">
       <div class="uh"><span class="uc">NJ0408001</span><div><div class="un">Camden City Water Dept (NJ American Water)</div><div class="um">County: Camden &nbsp;·&nbsp; <span class="popbadge">👥 ~71,000</span> &nbsp;·&nbsp; Source: EPA UCMR5</div></div><div style="margin-left:auto"><span class="chip cr">⚠ PFOS 12.9 ng/L — 3.2× MCL</span></div></div>
       <div class="cg3" id="ch-camden"></div>
@@ -360,7 +316,6 @@ tr.clickable:hover td{background:#f8faff;cursor:pointer}
 <script>
 let mapInited = false;
 
-// CHANGE 2: nav() — added renderPFASCharts(id) call
 function nav(id, btn) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nbtn').forEach(b => b.classList.remove('active'));
@@ -369,10 +324,9 @@ function nav(id, btn) {
   if (btn) btn.classList.add('active');
   else { const b = document.querySelector(`.nbtn[data-id="${id}"]`); if (b) b.classList.add('active'); }
   if (id === 'map' && !mapInited) { initMap(); mapInited = true; }
-  if (window.renderPFASCharts) renderPFASCharts(id); // ← CHANGE 2
+  if (window.renderPFASCharts) renderPFASCharts(id);
 }
 
-// ===== DATA =====
 const allU = [
   {n:'Camden City Water Dept (NJAW)',  id:'NJ0408001',co:'Camden',            p:'camden',      pop:71000,   approx:true,  ucmr5:true, s:'r', ch:'PFOS', mx:12.9, mu:'3.2×'},
   {n:'NJAW — Atlantic County',         id:'NJ0119002',co:'Atlantic',           p:'atlantic',    pop:112076,               ucmr5:true, s:'r', ch:'PFOA', mx:10.9, mu:'2.7×'},
@@ -422,7 +376,6 @@ function srcBadge(u) {
     : '<span style="background:#fef9c3;color:#92400e;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">CCR 2024</span>';
 }
 
-// ===== OVERVIEW TABLE =====
 const ovSorted = [...allU].sort((a,b) => getSortVal(b) - getSortVal(a));
 const ovtb = document.getElementById('ovtb');
 ovSorted.forEach((u, i) => {
@@ -486,7 +439,6 @@ ovSorted.forEach((u, i) => {
   ovtb.appendChild(tr);
 });
 
-// ===== MCL TABLE =====
 const mclList = allU
   .filter(u => u.ucmr5 ? (!u.none && !u.noMcl) : u.ccrStatus==='exceeds')
   .sort((a,b) => getSortVal(b) - getSortVal(a));
@@ -519,7 +471,6 @@ mclList.forEach((u, i) => {
   mcltb.appendChild(tr);
 });
 
-// ===== GENERATE CCR PANELS =====
 const ccrU = allU.filter(u => !u.ucmr5);
 const ct   = document.getElementById('ct');
 ccrU.forEach(u => {
@@ -576,7 +527,6 @@ ccrU.forEach(u => {
   ct.appendChild(div);
 });
 
-// ===== MAP =====
 function initMap() {
   const lm = L.map('lmap').setView([40.15,-74.55],8);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:18}).addTo(lm);
@@ -632,8 +582,5 @@ function initMap() {
   leg.addTo(lm);
 }
 </script>
-
-<!-- CHANGE 4: load chart logic from separate file -->
-<script src="./pfas_charts.js"></script>
 </body>
 </html>
