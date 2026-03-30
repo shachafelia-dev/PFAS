@@ -57,6 +57,9 @@ function loadCSV() {
     .then(raw => {
       csvData      = parseAndGroupCSV(raw);
       csvLoadState = 'ready';
+      // Debug: show how many utilities were parsed
+      console.log('[pfas_charts] Parsed utilities:', Object.keys(csvData));
+      console.log('[pfas_charts] Atlantic County data:', csvData['NJ0119002'] ? Object.keys(csvData['NJ0119002']) : 'NOT FOUND');
       // if user clicked a panel while loading — render it now
       if (pendingPanel) {
         renderChartsForPanel(pendingPanel);
@@ -128,12 +131,16 @@ function parseAndGroupCSV(raw) {
     const contam = (row.Contaminant            || '').trim();
     const date   = (row.CollectionDate         || '').trim();
     const sign   = (row.AnalyticalResultsSign  || '').trim();
-    const valRaw = parseFloat(row.AnalyticalResultValue);
+
+    // Try pre-converted ng/L column first, fall back to µg/L × 1000
+    const valNgL  = parseFloat(row['ng/l']);
+    const valUgL  = parseFloat(row.AnalyticalResultValue);
+    const valRaw  = !isNaN(valNgL) && valNgL > 0 ? valNgL : valUgL * 1000;
 
     if (!pwsid || !contam || !date)              return;
     if (sign === '<' || isNaN(valRaw) || valRaw <= 0) return;
 
-    const val   = parseFloat((valRaw * 1000).toFixed(3)); // µg/L → ng/L
+    const val = parseFloat(valRaw.toFixed(3));
     const label = getLabel(pwsid, row);
 
     if (!temp[pwsid])                       temp[pwsid] = {};
