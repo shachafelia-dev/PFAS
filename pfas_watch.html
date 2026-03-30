@@ -195,6 +195,10 @@ body {
       📋 MCL Exceedances (19)
     </button>
 
+    <button class="sb-btn" data-panel="methodology" onclick="nav('methodology', this)">
+      🔬 Methodology
+    </button>
+
     <button class="sb-btn" data-panel="map" onclick="nav('map', this)">
       🗺 Interactive Map
     </button>
@@ -239,6 +243,9 @@ body {
 
     <!-- PANEL: Overview -->
     <div id="panel-overview" class="panel active"></div>
+
+    <!-- PANEL: Methodology -->
+    <div id="panel-methodology" class="panel"></div>
 
     <!-- PANEL: MCL Exceedances -->
     <div id="panel-mcltable" class="panel"></div>
@@ -523,6 +530,7 @@ CCR_PANELS.forEach(function(p) {
 <script src="./pfas_data.js"></script>
 <script src="./pfas_overview.js"></script>
 <script src="./pfas_mcl_table.js"></script>
+<script src="./pfas_methodology.js"></script>
 <script src="./pfas_map.js"></script>
 <script src="./pfas_charts.js"></script>
 
