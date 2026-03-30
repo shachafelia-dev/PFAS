@@ -38,15 +38,14 @@ function initMap() {
     return MIN_R + t * (MAX_R - MIN_R);
   }
 
-  // ── Color scale: concentration (ng/L) → color ──
-  // Deep red (highest) → yellow-amber (just over MCL=4)
+  // ── Color scale: 3 levels matching the MCL table colors ──
+  // Red:    ≥ 8 ng/L  (2× MCL or more)
+  // Yellow: 6–8 ng/L  (1.5–2× MCL)
+  // Green:  4–6 ng/L  (just over MCL)
   function concentrationColor(mx) {
-    if (mx >= 12) return '#7f1d1d'; // deep red
-    if (mx >= 10) return '#b91c1c'; // red
-    if (mx >= 8)  return '#dc2626'; // medium red
-    if (mx >= 6)  return '#ea580c'; // orange-red
-    if (mx >= 5)  return '#d97706'; // amber
-    return        '#ca8a04';        // yellow-amber (4–5 ng/L)
+    if (mx >= 8) return '#dc2626'; // red
+    if (mx >= 6) return '#eab308'; // yellow
+    return        '#16a34a';       // green
   }
 
   // ── Plot each utility ──
@@ -142,13 +141,10 @@ function initMap() {
     }
 
     div.innerHTML = `
-      <b style="display:block;margin-bottom:4px;font-size:11px">Concentration (ng/L)</b>
-      ${dot('#7f1d1d', '≥ 12')}
-      ${dot('#b91c1c', '10 – 12')}
-      ${dot('#dc2626', '8 – 10')}
-      ${dot('#ea580c', '6 – 8')}
-      ${dot('#d97706', '5 – 6')}
-      ${dot('#ca8a04', '4 – 5  (just over MCL)')}
+      <b style="display:block;margin-bottom:4px;font-size:11px">Exceedance Level</b>
+      ${dot('#dc2626', '≥ 8 ng/L &nbsp; (2× MCL or more)')}
+      ${dot('#eab308', '6–8 ng/L &nbsp; (1.5–2× MCL)')}
+      ${dot('#16a34a', '4–6 ng/L &nbsp; (just over MCL)')}
       <hr style="margin:7px 0;border:none;border-top:1px solid #e5e7eb">
       <b style="display:block;margin-bottom:4px;font-size:11px">Circle size = Population</b>
       <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px">
