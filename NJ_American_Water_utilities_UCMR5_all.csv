@@ -1,3 +1,4 @@
+## try
 PWSID,PWSName,Size,FacilityID,FacilityName,FacilityWaterType,SamplePointID,SamplePointName,SamplePointType,AssociatedFacilityID,AssociatedSamplePointID,CollectionDate,SampleID,Contaminant,MRL,Units,MethodID,AnalyticalResultsSign,AnalyticalResultValue,SampleEventCode,MonitoringRequirement,Region,State,UCMR1SampleType
 NJ0119002,NJ AMERICAN WATER - ATLANTIC COUNTY,L,10025,Well 27 TP,GW,TP010025,Fire Rd,EP,,,2/27/2024,69251301,PFDA,0.003,µg/L,EPA 533,<,,SE1,AM,2,NJ,
 NJ0119002,NJ AMERICAN WATER - ATLANTIC COUNTY,L,10025,Well 27 TP,GW,TP010025,Fire Rd,EP,,,2/27/2024,69251301,HFPO-DA,0.005,µg/L,EPA 533,<,,SE1,AM,2,NJ,
